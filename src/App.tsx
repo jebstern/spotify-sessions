@@ -98,6 +98,9 @@ const useStyles = makeStyles((theme) => ({
       justifyContent: "flex-end",
     },
   },
+  playlistContainer: {
+    width: '100%',
+  }
 }))
 
 export default function Album() {
@@ -428,7 +431,7 @@ export default function Album() {
                     <Typography>{showPlaylist ? "Hide playlist" : "Show playlist"}</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <div>{isSimpleList ? getSimplePlaylistItems() : getFancyPlaylistItems()}</div>
+                    <div className={classes.playlistContainer}>{isSimpleList ? getSimplePlaylistItems() : getFancyPlaylistItems()}</div>
                   </AccordionDetails>
                 </Accordion>
               </Grid>
