@@ -141,3 +141,37 @@ export interface HashParams {
   state: string
   token_type: string
 }
+
+// Function types
+export interface FancyPlaylistProps {
+  playlist: Playlist
+  currentlyPlaying: CurrentlyPlaying
+  accessToken: string
+  playlistId: string
+}
+
+export interface CurrentlyPlayingProps {
+  currentlyPlaying: CurrentlyPlaying
+}
+
+export interface PlayerProps {
+  currentlyPlaying: CurrentlyPlaying
+  isPlaying: boolean
+  accessToken: string
+}
+
+export interface AddSongDialogProps {
+  showAddSongDialog: boolean
+  accessToken: string
+  playlistId: string
+  onDialogClose: Function
+  onSongAdded: Function
+}
+
+
+export interface AppBarProps {
+  authAndPlaylistDone: boolean
+  onShowSongDialog: Function
+  onThemeChanged: Function
+  onFancyListChange: Function
+}
