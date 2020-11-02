@@ -20,18 +20,17 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  FormGroup,
-  FormControlLabel,
   Grid,
   LinearProgress,
   makeStyles,
-  Switch,
+  Menu,
+  MenuItem,
   TextField,
   Toolbar,
   Typography,
   TextFieldProps,
 } from "@material-ui/core"
-import { ExpandMore, Pause, PlayArrow, Shuffle, SkipNext, SkipPrevious } from "@material-ui/icons"
+import { ExpandMore, Pause, PlayArrow, Shuffle, SkipNext, SkipPrevious, Menu as MenuIcon } from "@material-ui/icons"
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -72,7 +71,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: "#00c333",
   },
   cardBackgroundWhite: {
-    backgroundColor: "#fafafa",
+    backgroundColor: "#fff",
   },
   cardMedia: {
     paddingTop: "56.25%", // 16:9
@@ -99,8 +98,11 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   playlistContainer: {
-    width: '100%',
-  }
+    width: "100%",
+  },
+  menuIcon: {
+    color: "white",
+  },
 }))
 
 export default function Album() {
@@ -113,14 +115,14 @@ export default function Album() {
   const [currentlyPlaying, setCurrentlyPlaying] = useState({} as CurrentlyPlaying)
   const [seconds, setSeconds] = useState(0)
   const [isPlaying, setPlaying] = useState(true)
-  const [open, setOpen] = React.useState(false)
+  const [showAddSongDialog, setShowSongDialog] = React.useState(false)
   const [addSong, setSongLink] = React.useState("")
   const [isSimpleList, setIsSimpleList] = React.useState(true)
   const [showPlaylist, setShowPlaylist] = React.useState(true)
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
 
-  const handleFancyListChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setIsSimpleList(event.target.checked)
-  }
+  const handleFancyListChange = () => setIsSimpleList((isSimpleList) => !isSimpleList)
+
   const handleLogIn = () => {
     const client_id = "dfd70e3e1fcf46459825d3fb4dac11f7"
     const redirect_uri =
@@ -132,12 +134,14 @@ export default function Album() {
 
   const authAndPlaylistDone = () => playlistId !== "" && accessToken !== ""
 
-  const handleClickOpen = () => setOpen(true)
+  const handleAddSongClick = () => setShowSongDialog(true)
   const handlePrevious = () => api.previous(accessToken)
   const handleNext = () => api.next(accessToken)
   const handlePlayOrPause = () => (isPlaying ? api.pause(accessToken) : api.play(accessToken))
-  const handleClose = () => setOpen(false)
+  const handleClose = () => setShowSongDialog(false)
   const handleOnShuffleClicked = () => api.shuffle(!currentlyPlaying.shuffle_state, accessToken)
+  const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => setAnchorEl(event.currentTarget)
+  const handleMenuClose = () => setAnchorEl(null)
   const handleOnShowPlaylist = () => {
     localStorage.setItem("showPlaylist", `${!showPlaylist}`)
     setShowPlaylist((showPlaylist) => !showPlaylist)
@@ -146,7 +150,7 @@ export default function Album() {
     let uri = "spotify:track:" + addSong.substring(31, 53)
     await api.add(uri, accessToken, playlistId)
     getPlaylist()
-    setOpen(false)
+    setShowSongDialog(false)
   }
   const onSongLinkChanged = (link: any) => setSongLink(link.target.value)
   const handleOnPlaylistIdSet = () => {
@@ -431,13 +435,15 @@ export default function Album() {
                     <Typography>{showPlaylist ? "Hide playlist" : "Show playlist"}</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <div className={classes.playlistContainer}>{isSimpleList ? getSimplePlaylistItems() : getFancyPlaylistItems()}</div>
+                    <div className={classes.playlistContainer}>
+                      {isSimpleList ? getSimplePlaylistItems() : getFancyPlaylistItems()}
+                    </div>
                   </AccordionDetails>
                 </Accordion>
               </Grid>
             </Grid>
           </Container>
-          <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+          <Dialog open={showAddSongDialog} onClose={handleClose} aria-labelledby="form-dialog-title">
             <DialogTitle id="form-dialog-title">Add song to playlist</DialogTitle>
             <DialogContent>
               <DialogContentText>Share -&gt; Copy link -&gt; Paste here -&gt; ?? -&gt; profit</DialogContentText>
@@ -475,15 +481,13 @@ export default function Album() {
           </Typography>
           {authAndPlaylistDone() && (
             <div>
-              <Button color="inherit" onClick={handleClickOpen}>
-                Add
+              <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleMenuClick}>
+                <MenuIcon className={classes.menuIcon} />
               </Button>
-              <FormGroup row>
-                <FormControlLabel
-                  control={<Switch checked={isSimpleList} onChange={handleFancyListChange} name="checkedA" />}
-                  label="Simple list"
-                />
-              </FormGroup>
+              <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleMenuClose}>
+                <MenuItem onClick={handleAddSongClick}>Add song</MenuItem>
+                <MenuItem onClick={handleFancyListChange}>Toggle playlist mode</MenuItem>
+              </Menu>
             </div>
           )}
         </Toolbar>
