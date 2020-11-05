@@ -55,7 +55,7 @@ export const PlayerComponent: FunctionComponent<PlayerProps> = ({ currentlyPlayi
                 </Button>
               </Grid>
               <Grid item>
-                <Button variant="contained" color="primary" onClick={handlePlayOrPause}>
+                <Button variant="outlined" color="primary" onClick={handlePlayOrPause}>
                   {isPlaying ? <Pause /> : <PlayArrow />}
                 </Button>
               </Grid>
