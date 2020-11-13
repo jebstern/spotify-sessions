@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react"
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles"
-import { CurrentlyPlaying, Playlist } from "../types"
-import { getHashParams } from "../utils"
-import * as api from "../api"
+import io from "socket.io-client"
+import { CurrentlyPlaying, Playlist, User } from "../types"
+import { formatDuration, getCode } from "../utils"
+
 import {
   Accordion,
   AccordionDetails,
@@ -17,11 +19,12 @@ import {
 import { ExpandMore } from "@material-ui/icons"
 import FancyPlaylistComponent from "./FancyPlaylistComponent"
 import SimplePlaylistComponent from "./SimplePlaylistComponent"
+import DensePlaylistComponent from "./DensePlaylistComponent"
 import PlayerComponent from "./PlayerComponent"
 import LoginComponent from "./LoginComponent"
-import SetPlaylistIdComponent from "./SetPlaylistIdComponent"
 import AddSongDialogComponent from "./AddSongDialogComponent"
 import AppBarComponent from "./AppBarComponent"
+import StatsComponent from "./StatsComponent"
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,10 +33,6 @@ const useStyles = makeStyles((theme) => ({
   title: {
     flexGrow: 1,
     textAlign: "center",
-  },
-  cardGrid: {
-    paddingTop: theme.spacing(8),
-    paddingBottom: theme.spacing(8),
   },
   accordionSummary: {
     "& > :nth-child(1)": {
@@ -48,20 +47,71 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
-export default function Album() {
+export default function App2() {
   const classes = useStyles()
-  const [darkMode, setDarkMode] = useState(false)
-  const [playlistId, setPlaylistId] = React.useState("")
-  const [accessToken, setAccessToken] = React.useState("")
+  const playlistId = "4HAkN6J48GMzR2scF0CXvw"
+  const [socket, setSocket] = useState<null | any>(null)
+  const [socketConnected, setSocketConnected] = useState(false)
+  const [code, setCode] = React.useState("")
   const [playlist, setPlaylist] = useState({} as Playlist)
+  const [users, setUsers] = useState<User[]>([])
   const [currentlyPlaying, setCurrentlyPlaying] = useState({} as CurrentlyPlaying)
-  const [seconds, setSeconds] = useState(0)
   const [isPlaying, setPlaying] = useState(true)
+  const [darkMode, setDarkMode] = useState(false)
   const [showAddSongDialog, setShowSongDialog] = React.useState(false)
+  const [showContributorsDialog, setShowContributorsDialog] = React.useState(false)
   const [isSimpleList, setIsSimpleList] = React.useState(true)
   const [showPlaylist, setShowPlaylist] = React.useState(true)
+  const [listeners, setListeners] = React.useState(0)
 
-  const authAndPlaylistDone = () => playlistId !== "" && accessToken !== ""
+  // MAIN
+  useEffect(() => {
+    setSocket(io("http://192.168.10.38:3001"))
+    const storageShowPlaylist = localStorage.getItem("showPlaylist") ?? "true"
+    const darkMode = localStorage.getItem("darkMode") ?? "true"
+    setDarkMode(darkMode === "true")
+    setShowPlaylist(storageShowPlaylist === "true")
+    const code = getCode()
+    if (code !== "") {
+      setCode(code)
+    }
+  }, [])
+
+  // [socket]
+  useEffect(() => {
+    if (!socket) return
+
+    socket.on("connect", () => {
+      setSocketConnected(socket.connected)
+      if (code !== "") {
+        socket.emit("code", code)
+      }
+    })
+    socket.on("playlist", (playlist: Playlist) => {
+      setPlaylist(playlist)
+    })
+    socket.on("currentlyPlaying", (currentlyPlaying: CurrentlyPlaying) => {
+      setPlaying(currentlyPlaying?.is_playing ?? false)
+      setCurrentlyPlaying(currentlyPlaying)
+    })
+    socket.on("users", (users: User[]) => {
+      setUsers(users)
+    })
+    socket.on("listeners", (listeners: number) => {
+      console.log("listeners:" + listeners)
+      setListeners(listeners)
+    })
+    socket.on("disconnect", () => {
+      setSocketConnected(socket.connected)
+    })
+  }, [socket])
+
+  const darkTheme = createMuiTheme({
+    palette: {
+      type: darkMode ? "dark" : "light",
+    },
+  })
+
   const handleAddSongClick = () => setShowSongDialog(true)
   const handleClose = () => setShowSongDialog(false)
   const handleFancyListChange = () => {
@@ -72,82 +122,29 @@ export default function Album() {
     setShowPlaylist((showPlaylist) => !showPlaylist)
   }
   const handleOnSongAdded = async () => {
-    getPlaylist()
+    socket.emit("playlist", code)
     handleClose()
   }
-  const handleOnPlaylistIdSet = (id: string) => {
-    console.log("handleOnPlaylistIdSet")
-    console.log("id:" + id)
-    if (id === "") {
-      return
-    }
-    localStorage.setItem("playlistId", id)
-    setPlaylistId(id)
-  }
+  const handleContributorsDialogClose = () => setShowContributorsDialog(false)
+
   const handleThemeChange = () => {
     localStorage.setItem("darkMode", `${!darkMode}`)
     setDarkMode((darkMode) => !darkMode)
   }
 
-  const darkTheme = createMuiTheme({
-    palette: {
-      type: darkMode ? "dark" : "light",
-    },
-  })
+  const handleContributorsChanged = () => setShowContributorsDialog(true)
 
-  const getPlaylist = () => {
-    if (!authAndPlaylistDone()) {
-      return
-    }
-    api.playlist(accessToken, playlistId).then((playlist) => setPlaylist(playlist))
-  }
-
-  useEffect(() => {
-    setPlaylistId(localStorage.getItem("playlistId") ?? "")
-    const storageShowPlaylist = localStorage.getItem("showPlaylist") ?? "true"
-    const darkMode = localStorage.getItem("darkMode") ?? "true"
-    setDarkMode(darkMode === "true")
-    setShowPlaylist(storageShowPlaylist === "true")
-    const hashParams = getHashParams()
-    if (hashParams.access_token && hashParams.access_token !== "") {
-      setAccessToken(hashParams.access_token)
-    }
-    getPlaylist()
-  }, [])
-
-  const getCurrentlyPlayingData = () => {
-    if (!authAndPlaylistDone()) {
-      return
-    }
-    if (Object.keys(playlist).length === 0 && playlist.constructor === Object) {
-      getPlaylist()
-    }
-
-    api.currentlyPlaying(accessToken).then((response: CurrentlyPlaying) => {
-      setPlaying(response?.is_playing ?? false)
-      setCurrentlyPlaying(response)
-    })
-  }
-
-  useEffect(() => {
-    let interval: any = null
-    interval = setInterval(() => {
-      setSeconds((seconds) => seconds + 1)
-    }, 1000)
-    getCurrentlyPlayingData()
-    return () => clearInterval(interval)
-  }, [seconds])
+  const currentlyPlayingIsEmpty = () =>
+    Object.keys(currentlyPlaying).length === 0 && currentlyPlaying.constructor === Object
 
   const getBody = () => {
-    if (accessToken === "") {
+    if (code === "" && currentlyPlayingIsEmpty()) {
       return <LoginComponent />
-    } else if (playlistId === "") {
-      return <SetPlaylistIdComponent onPlaylistSet={handleOnPlaylistIdSet} />
     } else {
       return (
         <main>
-          <PlayerComponent isPlaying={isPlaying} accessToken={accessToken} currentlyPlaying={currentlyPlaying} />
-          <Container className={classes.cardGrid} maxWidth="md">
+          <PlayerComponent isPlaying={isPlaying} currentlyPlaying={currentlyPlaying} />
+          <Container maxWidth="md">
             <Grid container spacing={4}>
               <Grid item xs={12} sm={12} md={12}>
                 <Accordion expanded={showPlaylist} onChange={handleOnShowPlaylist}>
@@ -164,15 +161,11 @@ export default function Album() {
                         <SimplePlaylistComponent
                           playlist={playlist}
                           currentlyPlaying={currentlyPlaying}
-                          accessToken={accessToken}
-                          playlistId={playlistId}
                         />
                       ) : (
                         <FancyPlaylistComponent
                           playlist={playlist}
                           currentlyPlaying={currentlyPlaying}
-                          accessToken={accessToken}
-                          playlistId={playlistId}
                         />
                       )}
                     </div>
@@ -183,10 +176,14 @@ export default function Album() {
           </Container>
           <AddSongDialogComponent
             showAddSongDialog={showAddSongDialog}
-            accessToken={accessToken}
-            playlistId={playlistId}
             onDialogClose={handleClose}
             onSongAdded={handleOnSongAdded}
+          />
+          <StatsComponent
+            users={users}
+            showDialog={showContributorsDialog}
+            onDialogClose={handleContributorsDialogClose}
+            playlist={playlist}
           />
         </main>
       )
@@ -198,10 +195,12 @@ export default function Album() {
       <ThemeProvider theme={darkTheme}>
         <CssBaseline />
         <AppBarComponent
-          authAndPlaylistDone={playlistId !== "" && accessToken !== ""}
+          authAndPlaylistDone={!currentlyPlayingIsEmpty()}
           onFancyListChange={handleFancyListChange}
           onShowSongDialog={handleAddSongClick}
           onThemeChanged={handleThemeChange}
+          onContributorsChange={handleContributorsChanged}
+          listeners={listeners}
         />
         {getBody()}
       </ThemeProvider>

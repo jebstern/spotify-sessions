@@ -28,13 +28,13 @@ const useStyles = makeStyles((theme) => ({
 export const SimplePlaylistComponent: FunctionComponent<FancyPlaylistProps> = ({
   playlist,
   currentlyPlaying,
-  accessToken,
-  playlistId,
 }) => {
   const classes = useStyles()
 
   const playlistItems = () => {
-    if (playlist.items == null) {
+    if (playlist === null) {
+      return <div></div>
+    } else if (playlist.items == null) {
       return <div></div>
     }
     const output = playlist.items.map((playlistItem: PlaylistItem, index: number) => {
@@ -50,11 +50,7 @@ export const SimplePlaylistComponent: FunctionComponent<FancyPlaylistProps> = ({
         >
           <img src={playlistItem.track.album.images[0].url} alt="asd" width="60" />
 
-          <Button
-            size="medium"
-            color="secondary"
-            onClick={(_) => api.playSongAtOffsetPosition(index, accessToken, playlistId)}
-          >
+          <Button size="medium" color="secondary" onClick={(_) => api.playSongAtOffsetPosition(index)}>
             Play
           </Button>
 

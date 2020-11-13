@@ -16,18 +16,18 @@ export const LoginComponent: FunctionComponent<any> = () => {
       process.env.NODE_ENV === "production" ? "https://spotify-session.herokuapp.com" : "http://localhost:3000"
     const scope =
       "user-read-private%20user-read-email%20user-read-playback-state%20user-modify-playback-state%20playlist-modify-public%20playlist-modify-private"
-    window.location.href = `https://accounts.spotify.com/authorize?client_id=${client_id}&redirect_uri=${redirect_uri}&scope=${scope}&response_type=token&state=123`
+    window.location.href = `https://accounts.spotify.com/authorize?client_id=${client_id}&redirect_uri=${redirect_uri}&scope=${scope}&response_type=code&state=123`
   }
 
   return (
     <React.Fragment>
       <main>
         <div className={classes.heroContent}>
-          <Container maxWidth="md">
+          <Container maxWidth="sm">
             <Grid container spacing={4}>
               <Grid item xs={12} sm={12} md={12}>
                 <Typography variant="h3">You need to log in first!</Typography>
-                <Typography variant="body1">This app won't work unless you log in to Spotify</Typography>
+                <Typography variant="body1">This app won't work unless you log in to Spotify.</Typography>
                 <br />
                 <Button variant="contained" color="primary" onClick={handleLogIn}>
                   Log in

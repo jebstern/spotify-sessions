@@ -134,20 +134,10 @@ export interface Playlist {
   items: PlaylistItem[]
 }
 
-// Log in
-export interface HashParams {
-  access_token: string
-  expires_in: string
-  state: string
-  token_type: string
-}
-
 // Function types
 export interface FancyPlaylistProps {
   playlist: Playlist
   currentlyPlaying: CurrentlyPlaying
-  accessToken: string
-  playlistId: string
 }
 
 export interface CurrentlyPlayingProps {
@@ -157,21 +147,43 @@ export interface CurrentlyPlayingProps {
 export interface PlayerProps {
   currentlyPlaying: CurrentlyPlaying
   isPlaying: boolean
-  accessToken: string
 }
 
 export interface AddSongDialogProps {
   showAddSongDialog: boolean
-  accessToken: string
-  playlistId: string
   onDialogClose: Function
   onSongAdded: Function
 }
-
 
 export interface AppBarProps {
   authAndPlaylistDone: boolean
   onShowSongDialog: Function
   onThemeChanged: Function
   onFancyListChange: Function
+  onContributorsChange: Function
+  listeners: number
+}
+
+// User
+export interface Followers {
+  href?: string
+  total: number
+}
+
+export interface User {
+  display_name: string
+  external_urls: ExternalUrls
+  followers: Followers
+  href: string
+  id: string
+  images: Image[]
+  type: string
+  uri: string
+}
+
+export interface StatsProps {
+  showDialog: boolean
+  users: User[]
+  onDialogClose: Function
+  playlist: Playlist
 }

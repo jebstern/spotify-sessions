@@ -1,5 +1,5 @@
 {
-  "name": "spotify-sessions",
+  "name": "lillajul-2020",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -12,10 +12,12 @@
     "@types/node": "^12.12.68",
     "@types/react": "^16.9.53",
     "@types/react-dom": "^16.9.8",
+    "@types/socket.io-client": "^1.4.34",
     "axios": "^0.20.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-scripts": "3.4.3",
+    "socket.io-client": "^3.0.1",
     "typescript": "^3.7.5"
   },
   "scripts": {

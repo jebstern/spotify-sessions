@@ -14,8 +14,6 @@ import * as api from "../api"
 
 export const AddSongDialogComponent: FunctionComponent<AddSongDialogProps> = ({
   showAddSongDialog,
-  accessToken,
-  playlistId,
   onDialogClose,
   onSongAdded,
 }) => {
@@ -23,7 +21,7 @@ export const AddSongDialogComponent: FunctionComponent<AddSongDialogProps> = ({
   const onSongLinkChanged = (link: any) => setSongLink(link.target.value)
   const handleOnSongAdded = async () => {
     let uri = "spotify:track:" + addSong.substring(31, 53)
-    await api.add(uri, accessToken, playlistId)
+    await api.add(uri)
     onSongAdded()
   }
 
@@ -46,10 +44,10 @@ export const AddSongDialogComponent: FunctionComponent<AddSongDialogProps> = ({
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick={handleClose} color="inherit">
             Cancel
           </Button>
-          <Button color="primary" onClick={handleOnSongAdded}>
+          <Button color="inherit" onClick={handleOnSongAdded}>
             Add song
           </Button>
         </DialogActions>

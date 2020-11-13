@@ -34,16 +34,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
-export const FancyPlaylistComponent: FunctionComponent<FancyPlaylistProps> = ({
-  playlist,
-  currentlyPlaying,
-  accessToken,
-  playlistId,
-}) => {
+export const FancyPlaylistComponent: FunctionComponent<FancyPlaylistProps> = ({ playlist, currentlyPlaying }) => {
   const classes = useStyles()
 
   const playlistItems = () => {
-    if (playlist.items == null) {
+    if (playlist === null) {
+      return <div></div>
+    } else if (playlist.items == null) {
       return <div></div>
     }
     const output = playlist.items.map((playlistItem: PlaylistItem, index: number) => {
@@ -83,11 +80,7 @@ export const FancyPlaylistComponent: FunctionComponent<FancyPlaylistProps> = ({
               )}
             </CardContent>
             <CardActions>
-              <Button
-                size="small"
-                color="secondary"
-                onClick={(_) => api.playSongAtOffsetPosition(index, accessToken, playlistId)}
-              >
+              <Button size="small" color="secondary" onClick={(_) => api.playSongAtOffsetPosition(index)}>
                 Play
               </Button>
             </CardActions>

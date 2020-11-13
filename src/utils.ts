@@ -1,14 +1,7 @@
-import { HashParams } from "./types"
-
-export const getHashParams = (): HashParams => {
-  let hashParams: HashParams = { access_token: "", expires_in: "", state: "", token_type: "" }
-  let e: any
-  let r = /([^&;=]+)=?([^&;]*)/g
-  let q = window.location.hash.substring(1)
-  while ((e = r.exec(q))) {
-    ;(hashParams as any)[e[1]] = decodeURIComponent(e[2])
-  }
-  return hashParams
+export const getCode = (): string => {
+  const url = new URL(window.location.href)
+  const code = url.searchParams.get("code")
+  return code ?? ""
 }
 
 export const formatDuration = (milliSeconds: number) => {
@@ -22,3 +15,6 @@ export const getTrackProgress = (playedDuration: number, totalDuration: number):
   }
   return (playedDuration / totalDuration) * 100
 }
+
+export const apiUrl = () =>
+  process.env.NODE_ENV === "production" ? "spotify-sessions-be.herokuapp.com" : "http://192.168.10.38:3001"

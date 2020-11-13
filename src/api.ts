@@ -1,90 +1,33 @@
 import axios from "axios"
+import { apiUrl } from "./utils"
 
-export async function currentlyPlaying(accessToken: string): Promise<any> {
-  return axios
-    .get("https://api.spotify.com/v1/me/player", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-    })
-    .then((response) => response.data)
+const API_URL = apiUrl()
+
+export async function playSongAtOffsetPosition(position: number): Promise<void> {
+  axios.put(`${API_URL}/playSongAtOffsetPosition`, { position: position })
 }
 
-export async function playlist(accessToken: string, playlistId: string): Promise<any> {
-  return axios
-    .get(
-      `https://api.spotify.com/v1/playlists/${playlistId}/tracks?fields=items(added_by.id%2Ctrack(id%2Cduration_ms%2Cname%2Calbum(name%2C%20images%2Cartists)))`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      }
-    )
-    .then((response) => response.data)
+export async function shuffle(shuffle: boolean): Promise<any> {
+  await axios.put(`${API_URL}/shuffle`, { shuffle })
 }
 
-export async function playSongAtOffsetPosition(position: number, accessToken: string, playlistId: string): Promise<any> {
-  return axios.put(
-    "https://api.spotify.com/v1/me/player/play",
-    {
-      context_uri: `spotify:playlist:${playlistId}`,
-      offset: {
-        position: position,
-      },
-      position_ms: 0,
-    },
-    { headers: { Authorization: `Bearer ${accessToken}` } }
-  )
+export async function play(): Promise<any> {
+  console.log("url:" + apiUrl())
+  await axios.get(`${API_URL}/play`).catch((error) => console.log("play ERROR! " + error.message))
 }
 
-export async function shuffle(shuffle: boolean, accessToken: string): Promise<any> {
-  return axios.put(
-    `https://api.spotify.com/v1/me/player/shuffle?state=${shuffle}`,
-    {},
-    { headers: { Authorization: `Bearer ${accessToken}` } }
-  )
+export async function pause(): Promise<any> {
+  await axios.get(`${API_URL}/pause`).catch((error) => console.log("pause ERROR! " + error.message))
 }
 
-export async function play(accessToken: string): Promise<any> {
-  return axios.put(
-    "https://api.spotify.com/v1/me/player/play",
-    {},
-    { headers: { Authorization: `Bearer ${accessToken}` } }
-  )
+export async function next(): Promise<any> {
+  await axios.get(`${API_URL}/next`).catch((error) => console.log("next ERROR! " + error.message))
 }
 
-export async function pause(accessToken: string): Promise<any> {
-  return axios.put(
-    "https://api.spotify.com/v1/me/player/pause",
-    {},
-    { headers: { Authorization: `Bearer ${accessToken}` } }
-  )
+export async function previous(): Promise<any> {
+  await axios.get(`${API_URL}/previous`).catch((error) => console.log("previous ERROR! " + error.message))
 }
 
-export async function next(accessToken: string): Promise<any> {
-  return axios.post(
-    "https://api.spotify.com/v1/me/player/next",
-    {},
-    { headers: { Authorization: `Bearer ${accessToken}` } }
-  )
-}
-
-export async function previous(accessToken: string): Promise<any> {
-  return axios.post(
-    "https://api.spotify.com/v1/me/player/previous",
-    {},
-    { headers: { Authorization: `Bearer ${accessToken}` } }
-  )
-}
-
-export async function add(trackURI: string, accessToken: string, playlistId: string): Promise<any> {
-  return axios.post(
-    `https://api.spotify.com/v1/playlists/${playlistId}/tracks?uris=${trackURI}`,
-    {},
-    { headers: { Authorization: `Bearer ${accessToken}` } }
-  )
+export async function add(trackURI: string): Promise<any> {
+  axios.post(`${API_URL}/add`, { trackURI })
 }

@@ -23,13 +23,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
-export const PlayerComponent: FunctionComponent<PlayerProps> = ({ currentlyPlaying, isPlaying, accessToken }) => {
+export const PlayerComponent: FunctionComponent<PlayerProps> = ({ currentlyPlaying, isPlaying }) => {
   const classes = useStyles()
 
-  const handleOnShuffleClicked = () => api.shuffle(!currentlyPlaying.shuffle_state, accessToken)
-  const handlePrevious = () => api.previous(accessToken)
-  const handleNext = () => api.next(accessToken)
-  const handlePlayOrPause = () => (isPlaying ? api.pause(accessToken) : api.play(accessToken))
+  const handleOnShuffleClicked = () => api.shuffle(!currentlyPlaying.shuffle_state)
+  const handlePrevious = () => api.previous()
+  const handleNext = () => api.next()
+  const handlePlayOrPause = () => (isPlaying ? api.pause() : api.play())
 
   return (
     <React.Fragment>
@@ -43,24 +43,24 @@ export const PlayerComponent: FunctionComponent<PlayerProps> = ({ currentlyPlayi
               <Grid item>
                 <Button
                   variant={currentlyPlaying != null && currentlyPlaying.shuffle_state ? "contained" : "outlined"}
-                  color="primary"
+                  color="secondary"
                   onClick={handleOnShuffleClicked}
                 >
                   <Shuffle />
                 </Button>
               </Grid>
               <Grid item>
-                <Button variant="outlined" color="primary" onClick={handlePrevious}>
+                <Button variant="outlined" color="secondary" onClick={handlePrevious}>
                   <SkipPrevious />
                 </Button>
               </Grid>
               <Grid item>
-                <Button variant="outlined" color="primary" onClick={handlePlayOrPause}>
+                <Button variant="outlined" color="secondary" onClick={handlePlayOrPause}>
                   {isPlaying ? <Pause /> : <PlayArrow />}
                 </Button>
               </Grid>
               <Grid item>
-                <Button variant="outlined" color="primary" onClick={handleNext}>
+                <Button variant="outlined" color="secondary" onClick={handleNext}>
                   <SkipNext />
                 </Button>
               </Grid>
@@ -68,6 +68,7 @@ export const PlayerComponent: FunctionComponent<PlayerProps> = ({ currentlyPlayi
           </div>
           <div className={classes.currentlyPlayingProgress}>
             <LinearProgress
+              color="secondary"
               variant="determinate"
               value={
                 currentlyPlaying === null || currentlyPlaying.item === undefined
