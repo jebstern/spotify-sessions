@@ -11,12 +11,13 @@ export const LoginComponent: FunctionComponent<any> = () => {
   const classes = useStyles()
 
   const handleLogIn = () => {
-    const client_id = "dfd70e3e1fcf46459825d3fb4dac11f7"
     const redirect_uri =
-      process.env.NODE_ENV === "production" ? "https://spotify-session.herokuapp.com" : "http://localhost:3000"
+      process.env.NODE_ENV === "production"
+        ? "https://spotify-session-fe.herokuapp.com"
+        : process.env.REACT_APP_REDIRECT_URL
     const scope =
       "user-read-private%20user-read-email%20user-read-playback-state%20user-modify-playback-state%20playlist-modify-public%20playlist-modify-private"
-    window.location.href = `https://accounts.spotify.com/authorize?client_id=${client_id}&redirect_uri=${redirect_uri}&scope=${scope}&response_type=code&state=123`
+    window.location.href = `https://accounts.spotify.com/authorize?client_id=${process.env.REACT_APP_CLIENT_ID}&redirect_uri=${redirect_uri}&scope=${scope}&response_type=code&state=spotify-session-state-key-09876-54321`
   }
 
   return (

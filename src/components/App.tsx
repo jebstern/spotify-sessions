@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react"
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles"
 import io from "socket.io-client"
 import { CurrentlyPlaying, Playlist, User } from "../types"
-import { formatDuration, getCode } from "../utils"
+import { apiUrl, formatDuration, getCode } from "../utils"
 
 import {
   Accordion,
@@ -49,7 +49,6 @@ const useStyles = makeStyles((theme) => ({
 
 export default function App2() {
   const classes = useStyles()
-  const playlistId = "4HAkN6J48GMzR2scF0CXvw"
   const [socket, setSocket] = useState<null | any>(null)
   const [socketConnected, setSocketConnected] = useState(false)
   const [code, setCode] = React.useState("")
@@ -66,7 +65,7 @@ export default function App2() {
 
   // MAIN
   useEffect(() => {
-    setSocket(io("http://192.168.10.38:3001"))
+    setSocket(io(apiUrl()))
     const storageShowPlaylist = localStorage.getItem("showPlaylist") ?? "true"
     const darkMode = localStorage.getItem("darkMode") ?? "true"
     setDarkMode(darkMode === "true")
