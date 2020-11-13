@@ -1,5 +1,7 @@
 import { Button, Container, Grid, makeStyles, Typography } from "@material-ui/core"
 import React, { FunctionComponent } from "react"
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 const useStyles = makeStyles((theme) => ({
   heroContent: {
