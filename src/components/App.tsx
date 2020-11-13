@@ -133,8 +133,12 @@ export default function App2() {
 
   const handleContributorsChanged = () => setShowContributorsDialog(true)
 
-  const currentlyPlayingIsEmpty = () =>
-    Object.keys(currentlyPlaying).length === 0 && currentlyPlaying.constructor === Object
+  const currentlyPlayingIsEmpty = () => {
+    if (!currentlyPlaying || currentlyPlaying === undefined) {
+      return true
+    }
+    return Object.keys(currentlyPlaying).length === 0 && currentlyPlaying.constructor === Object
+  }
 
   const getBody = () => {
     if (code === "" && currentlyPlayingIsEmpty()) {
