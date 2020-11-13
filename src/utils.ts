@@ -17,4 +17,4 @@ export const getTrackProgress = (playedDuration: number, totalDuration: number):
 }
 
 export const apiUrl = () =>
-  process.env.NODE_ENV === "production" ? "spotify-session-be.herokuapp.com" : "http://192.168.10.38:3001"
+  process.env.NODE_ENV === "production" ? "https://spotify-session-be.herokuapp.com" : "http://192.168.10.38:3001"
